@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"golang-basic/structs"
+	"go-simple-MVC/structs"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

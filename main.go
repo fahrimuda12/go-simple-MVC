@@ -1,8 +1,8 @@
 package main
 
 import (
-	"golang-basic/config"
-	"golang-basic/routes"
+	"go-simple-MVC/config"
+	"go-simple-MVC/routes"
 
 	"github.com/gin-gonic/gin"
 )

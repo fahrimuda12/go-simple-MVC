@@ -1,7 +1,7 @@
 package config
 
 import (
-	"golang-basic/structs"
+	"go-simple-MVC/structs"
 	"os"
 
 	"github.com/joho/godotenv"

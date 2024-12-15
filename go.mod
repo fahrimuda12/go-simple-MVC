@@ -1,4 +1,4 @@
-module golang-basic
+module go-simple-MVC
 
 go 1.23.4
 

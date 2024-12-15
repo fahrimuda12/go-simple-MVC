@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"golang-basic/controllers"
+	"go-simple-MVC/controllers"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
