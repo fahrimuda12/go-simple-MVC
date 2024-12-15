@@ -3,6 +3,7 @@ package controllers
 import (
 	"go-simple-MVC/structs"
 	"net/http"
+	"strconv"
 
 	"go-simple-MVC/helpers"
 
@@ -20,19 +21,48 @@ type WalletDTO struct {
 	Tag_Name        string  `json:"tag_name"`
 }
 
+// type GetAllWallet struct {
+// 	Search string `json:"search" form:"search"`
+// 	Limit  int    `json:"limit" form:"limit"`
+// 	Page   int    `json:"page" form:"page"`
+// }
+
 func (idb *InDB) GetAllWallet(c *gin.Context) {
 
-	// limit := c.DefaultQuery("limit", "5")
-	// page := c.DefaultQuery("page", "0")
-	// cari := c.DefaultQuery("cari", "")
+	// var req GetAllWallet
+	// if err := c.ShouldBindJSON(&req); err != nil {
+	// 	c.JSON(http.StatusBadRequest, helpers.ErrorResponse(err.Error(), "400"))
+	// 	return
+	// }
+
+	pagePar := c.DefaultQuery("page", "1")
+	// convert page to int
+	page, err := strconv.Atoi(pagePar)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helpers.ErrorResponse(err.Error(), "400"))
+		return
+	}
+	limitPar := c.DefaultQuery("limit", "10")
+	// convert limit to int
+	limit, err := strconv.Atoi(limitPar)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helpers.ErrorResponse(err.Error(), "400"))
+		return
+	}
 	
 	var (
 		result gin.H
+		wallet []structs.Wallets
+		count int64
 	)
 
-	var wallet []structs.Wallets
+	print(page)
+	print(limit)
+	offset := (page - 1) * limit
+	idb.DB.Unscoped().Offset(offset).Limit(limit).Find(&wallet)
 
-	idb.DB.Unscoped().Find(&wallet)
+	idb.DB.Model(&wallet).Count(&count)
+
 	if len(wallet) <= 0 {
 		result = gin.H{
 			"result": nil,
@@ -40,15 +70,15 @@ func (idb *InDB) GetAllWallet(c *gin.Context) {
 		}
 	} 
 
-	result = helpers.SuccessResponse(wallet, "Success Get All Wallet")
+	data := map[string]interface{}{
+		"data": wallet,
+		"count": count,
+		"page": page,
+		"limit": limit,
+	}
 
-	// result = gin.H{
-	// 	"result": wallet,
-	// 	"count":  len(wallet),
-	// }
-
-
-
+	result = helpers.SuccessResponse(data, "Success Get All Wallet")
+	
 	c.JSON(http.StatusOK, result)
 }
 

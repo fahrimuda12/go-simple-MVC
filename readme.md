@@ -1,3 +1,4 @@
+# This repo under developing soon wil be release
 # Go Simple MVC Concept
 
 This repository contains a collection of Go programs and libraries 
