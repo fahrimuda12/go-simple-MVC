@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"golang-basic/helpers"
 	"golang-basic/structs"
 	"net/http"
 
@@ -38,7 +39,7 @@ func (idb *InDB) GetAllWallet(c *gin.Context) {
 		}
 	} 
 
-	result = helpers.successResponse(wallet, "Success Get All Wallet")
+	result = helpers.SuccessResponse(wallet, "Success Get All Wallet")
 
 	// result = gin.H{
 	// 	"result": wallet,
