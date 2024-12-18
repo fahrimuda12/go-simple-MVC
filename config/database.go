@@ -1,7 +1,7 @@
 package config
 
 import (
-	"go-simple-MVC/structs"
+	"go-simple-MVC/app/models"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -34,6 +34,6 @@ func DBInit() *gorm.DB {
 		panic("failed to connect to database")
 	}
 
-	db.AutoMigrate(structs.Person{})
+	db.AutoMigrate(models.Person{})
 	return db
 }

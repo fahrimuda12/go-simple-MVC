@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"go-simple-MVC/structs"
+	"go-simple-MVC/app/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 
 func (idb *InDB) GetAllPerson(c *gin.Context) {
 	var (
-		person []structs.Person
+		person []models.Person
 		result gin.H
 	)
 
@@ -32,7 +32,7 @@ func (idb *InDB) GetAllPerson(c *gin.Context) {
 
 func (idb *InDB) GetDetailPerson(c *gin.Context) {
 	var (
-		person []structs.Person
+		person []models.Person
 		result gin.H
 	)
 
@@ -55,7 +55,7 @@ func (idb *InDB) GetDetailPerson(c *gin.Context) {
 
 func (idb *InDB) CreatePerson(c *gin.Context) {
 	var (
-		person structs.Person
+		person models.Person
 		result gin.H
 	)
 
@@ -77,8 +77,8 @@ func (idb *InDB) UpdatePerson(c *gin.Context) {
 		last_name := c.PostForm("last_name")
 
 		var (
-			person    structs.Person
-			newPerson structs.Person
+			person    models.Person
+			newPerson models.Person
 			result    gin.H
 		)
 
@@ -106,7 +106,7 @@ func (idb *InDB) UpdatePerson(c *gin.Context) {
 
 func (idb *InDB) DeletePerson(c *gin.Context) {
 	var (
-		person structs.Person
+		person models.Person
 		result gin.H
 	)
 

@@ -28,5 +28,5 @@ func main() {
 	
 
 	//mulai server dengan port 3000
-	router.Run(":3000")
+	router.Run(":4050")
 }

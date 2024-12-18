@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"go-simple-MVC/structs"
+	"go-simple-MVC/app/models"
 	"net/http"
 	"strconv"
 
-	"go-simple-MVC/helpers"
+	"go-simple-MVC/app/helpers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,19 +21,7 @@ type WalletDTO struct {
 	Tag_Name        string  `json:"tag_name"`
 }
 
-// type GetAllWallet struct {
-// 	Search string `json:"search" form:"search"`
-// 	Limit  int    `json:"limit" form:"limit"`
-// 	Page   int    `json:"page" form:"page"`
-// }
-
 func (idb *InDB) GetAllWallet(c *gin.Context) {
-
-	// var req GetAllWallet
-	// if err := c.ShouldBindJSON(&req); err != nil {
-	// 	c.JSON(http.StatusBadRequest, helpers.ErrorResponse(err.Error(), "400"))
-	// 	return
-	// }
 
 	pagePar := c.DefaultQuery("page", "1")
 	// convert page to int
@@ -52,7 +40,7 @@ func (idb *InDB) GetAllWallet(c *gin.Context) {
 	
 	var (
 		result gin.H
-		wallet []structs.Wallets
+		wallet []models.Wallets
 		count int64
 	)
 
@@ -63,13 +51,6 @@ func (idb *InDB) GetAllWallet(c *gin.Context) {
 
 	idb.DB.Model(&wallet).Count(&count)
 
-	if len(wallet) <= 0 {
-		result = gin.H{
-			"result": nil,
-			"count":  0,
-		}
-	} 
-
 	data := map[string]interface{}{
 		"data": wallet,
 		"count": count,
@@ -78,36 +59,35 @@ func (idb *InDB) GetAllWallet(c *gin.Context) {
 	}
 
 	result = helpers.SuccessResponse(data, "Success Get All Wallet")
-	
+
 	c.JSON(http.StatusOK, result)
 }
 
 func (idb *InDB) GetDetailWallet(c *gin.Context) {
 	var (
-		person []structs.Person
+		wallet []models.Wallets
 		result gin.H
 	)
 
 	id := c.Param("id")
-	err := idb.DB.First(&person, id).Error
+	walletID, err := strconv.Atoi(id)
 	if err != nil {
-		result = gin.H{
-			"result": nil,
-			"count":  0,
-		}
-	} else {
-		result = gin.H{
-			"result": person,
-			"count":  1,
-		}
+		c.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid ID format", "400"))
+		return
+	}
+	err = idb.DB.Unscoped().First(&wallet, walletID).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, helpers.ErrorResponse("Data not found", "404"))
+		return
 	}
 
+	result = helpers.SuccessResponse(wallet, "Success Get Detail Wallet")
 	c.JSON(http.StatusOK, result)
 }
 
 func (idb *InDB) CreateWallet(c *gin.Context) {
 	var (
-		person structs.Person
+		person models.Person
 		result gin.H
 	)
 
@@ -129,8 +109,8 @@ func (idb *InDB) UpdateWallet(c *gin.Context) {
 		last_name := c.PostForm("last_name")
 
 		var (
-			person    structs.Person
-			newPerson structs.Person
+			person    models.Person
+			newPerson models.Person
 			result    gin.H
 		)
 
@@ -158,7 +138,7 @@ func (idb *InDB) UpdateWallet(c *gin.Context) {
 
 func (idb *InDB) DeleteWallet(c *gin.Context) {
 	var (
-		person structs.Person
+		person models.Person
 		result gin.H
 	)
 
