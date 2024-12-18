@@ -1,24 +1,20 @@
 package controllers
 
 import (
+	"fmt"
+	"go-simple-MVC/app/helpers"
 	"go-simple-MVC/app/models"
+	"math/rand"
 	"net/http"
 	"strconv"
-
-	"go-simple-MVC/app/helpers"
 
 	"github.com/gin-gonic/gin"
 )
 
-type WalletDTO struct {
-	ID              uint    `json:"id"`
-	Name            string  `json:"name"`
-	Type            string  `json:"type"`
+type WalletCreate struct {
+	Name            string  `json:"name" binding:"required"`
+	Type            string  `json:"type" binding:"required"`
 	Balance         float64 `json:"balance"`
-	Key_Phrase      string  `json:"key_phrase"`
-	User_ID         uint    `json:"user_id"`
-	Virtual_Account string  `json:"virtual_account"`
-	Tag_Name        string  `json:"tag_name"`
 }
 
 func (idb *InDB) GetAllWallet(c *gin.Context) {
@@ -69,13 +65,10 @@ func (idb *InDB) GetDetailWallet(c *gin.Context) {
 		result gin.H
 	)
 
-	id := c.Param("id")
-	walletID, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, helpers.ErrorResponse("Invalid ID format", "400"))
-		return
-	}
-	err = idb.DB.Unscoped().First(&wallet, walletID).Error
+	walletID := c.Param("id")
+	fmt.Print(walletID)
+	
+	err := idb.DB.Unscoped().First(&wallet, "id = ?",walletID).Error
 	if err != nil {
 		c.JSON(http.StatusNotFound, helpers.ErrorResponse("Data not found", "404"))
 		return
@@ -87,17 +80,42 @@ func (idb *InDB) GetDetailWallet(c *gin.Context) {
 
 func (idb *InDB) CreateWallet(c *gin.Context) {
 	var (
-		person models.Person
+		wallet models.Wallets
 		result gin.H
+		createWalletBind WalletCreate
 	)
 
-	first_name := c.PostForm("first_name")
-	last_name := c.PostForm("last_name")
-	person.First_Name = first_name
-	person.Last_Name = last_name
-	idb.DB.Create(&person)
+	// validate input
+	if err := c.ShouldBindJSON(&createWalletBind); err != nil {
+		c.JSON(http.StatusBadRequest, helpers.ErrorResponse(err.Error(), "400"))
+		return
+	}
+
+	name := c.PostForm("name")
+	tipe := c.PostForm("type")
+	balance := c.PostForm("balance")
+	wallet.Name = name
+	wallet.Type = tipe
+
+	balanceFloat, err := strconv.ParseFloat(balance, 64)
+	if err != nil {
+		wallet.Balance = 0
+	} else {
+		wallet.Balance = balanceFloat
+	}
+	
+	wallet.Virtual_Account = fmt.Sprintf("%03d-%04d-%04d", rand.Intn(1000), rand.Intn(10000), rand.Intn(10000))
+	randomString := fmt.Sprintf("%03d", rand.Intn(1000))
+	wallet.Tag_Name = randomString + "_" + name
+	// wallet.Key_Phrase = randomString + "_" + name
+
+	err = idb.DB.Create(&wallet).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, helpers.ErrorResponse(err.Error(), "503"))
+		return
+	}
 	result = gin.H{
-		"result": person,
+		"result": wallet,
 	}
 
 	c.JSON(http.StatusOK, result)
@@ -105,25 +123,25 @@ func (idb *InDB) CreateWallet(c *gin.Context) {
 
 func (idb *InDB) UpdateWallet(c *gin.Context) {
 		id := c.Query("id")
-		first_name := c.PostForm("first_name")
-		last_name := c.PostForm("last_name")
+		name := c.PostForm("name")
+		tipe := c.PostForm("tipe")
 
 		var (
-			person    models.Person
-			newPerson models.Person
+			wallet    models.Wallets
+			newWallet models.Wallets
 			result    gin.H
 		)
 
-		err := idb.DB.First(&person, id).Error
+		err := idb.DB.First(&wallet, id).Error
 		if err != nil {
 			result = gin.H{
 				"result": "Data not found",
 			}
 		}
 
-		newPerson.First_Name = first_name
-		newPerson.Last_Name = last_name
-		err = idb.DB.Model(&person).Updates(newPerson).Error
+		newWallet.Name = name
+		newWallet.Type = tipe
+		err = idb.DB.Model(&wallet).Updates(newWallet).Error
 		if err != nil {
 			result = gin.H{
 				"result": "Update failed",
@@ -138,19 +156,19 @@ func (idb *InDB) UpdateWallet(c *gin.Context) {
 
 func (idb *InDB) DeleteWallet(c *gin.Context) {
 	var (
-		person models.Person
+		wallet models.Wallets
 		result gin.H
 	)
 
 	id := c.Param("id")
-	err := idb.DB.First(&person, id).Error
+	err := idb.DB.First(&wallet, id).Error
 	if err != nil {
 		result = gin.H{
 			"result": "Data not found",
 		}
 	}
 
-	err = idb.DB.Delete(&person, id).Error
+	err = idb.DB.Delete(&wallet, id).Error
 	if err != nil {
 		result = gin.H{
 			"result": "Delete failed",

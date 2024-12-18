@@ -34,6 +34,6 @@ func DBInit() *gorm.DB {
 		panic("failed to connect to database")
 	}
 
-	db.AutoMigrate(models.Person{})
+	db.AutoMigrate(models.Wallets{})
 	return db
 }
