@@ -1,8 +1,8 @@
 package main
 
 import (
-	"golang-basic/config"
-	"golang-basic/routes"
+	"go-simple-MVC/config"
+	"go-simple-MVC/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,5 +28,5 @@ func main() {
 	
 
 	//mulai server dengan port 3000
-	router.Run(":3000")
+	router.Run(":4050")
 }
