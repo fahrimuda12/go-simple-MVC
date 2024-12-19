@@ -134,23 +134,18 @@ func (idb *InDB) UpdateWallet(c *gin.Context) {
 
 		err := idb.DB.First(&wallet, id).Error
 		if err != nil {
-			result = gin.H{
-				"result": "Data not found",
-			}
+			c.JSON(http.StatusNotFound, helpers.ErrorResponse("Data not found", "404"))
+			return
 		}
 
 		newWallet.Name = name
 		newWallet.Type = tipe
 		err = idb.DB.Model(&wallet).Updates(newWallet).Error
 		if err != nil {
-			result = gin.H{
-				"result": "Update failed",
-			}
-		} else {
-			result = gin.H{
-				"result": "Data updated successfully",
-			}
+			c.JSON(http.StatusBadRequest, helpers.ServerErrorResponse(err.Error()))
+			return
 		}
+
 		c.JSON(http.StatusOK, result)
 }
 
@@ -163,21 +158,15 @@ func (idb *InDB) DeleteWallet(c *gin.Context) {
 	id := c.Param("id")
 	err := idb.DB.First(&wallet, id).Error
 	if err != nil {
-		result = gin.H{
-			"result": "Data not found",
-		}
+		c.JSON(http.StatusNotFound, helpers.ErrorResponse("Data not found", "404"))
+		return
 	}
 
 	err = idb.DB.Delete(&wallet, id).Error
 	if err != nil {
-		result = gin.H{
-			"result": "Delete failed",
-		}
-	} else {
-		result = gin.H{
-			"result": "Data deleted successfully",
-		}
-	}
-
+		c.JSON(http.StatusBadRequest, helpers.ServerErrorResponse(err.Error()))
+		return
+	} 
+	
 	c.JSON(http.StatusOK, result)
 }
